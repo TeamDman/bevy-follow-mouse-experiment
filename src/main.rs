@@ -1,11 +1,13 @@
-use bevy::{
-    prelude::*,
-    diagnostic::{FrameTimeDiagnosticsPlugin, DiagnosticsStore},
-};
+use bevy::diagnostic::DiagnosticsStore;
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::prelude::*;
+use bevy_framepace::FramepacePlugin;
 
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, FrameTimeDiagnosticsPlugin))
+        //https://github.com/bevyengine/bevy/issues/3317#issuecomment-1464934469
+        .add_plugins(FramepacePlugin)
         .add_systems(Startup, (setup_camera, setup_ui))
         .add_systems(Update, (update_square, display_info))
         .run();
@@ -21,16 +23,18 @@ fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d);
 }
 
-fn setup_ui(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<ColorMaterial>>) {
-
+fn setup_ui(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     // Spawn the square, and save its entity id in the component.
     commands.spawn((
-    	Mesh2d(meshes.add(Rectangle::new(50.0, 50.0))),
+        Mesh2d(meshes.add(Rectangle::new(50.0, 50.0))),
         MeshMaterial2d(materials.add(Color::srgb(0.8, 0.2, 0.2))),
-        Transform::from_xyz(0.,0.,1.),
+        Transform::from_xyz(0., 0., 1.),
         CursorSquare, // Mark the entity
     ));
-
 
     // Spawn the text for displaying information.
     commands.spawn((
@@ -44,8 +48,6 @@ fn setup_ui(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materi
         InfoText, // Use a marker component.
     ));
 }
-
-
 
 fn update_square(
     windows: Query<&Window>,
@@ -65,7 +67,6 @@ fn update_square(
         }
     }
 }
-
 
 fn display_info(
     diagnostics: Res<DiagnosticsStore>,
